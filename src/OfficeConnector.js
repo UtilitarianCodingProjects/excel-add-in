@@ -133,7 +133,21 @@ export default class OfficeConnector {
           );
         }).catch(reject);
       });
-    })
+    });
+  }
+
+  createSelectionBinding(name) {
+    return new Promise((resolve, reject) => {
+      Office.context.document.bindings.addFromSelectionAsync(
+        Office.BindingType.Matrix,
+        { id: `dw::${name}` },
+        (result) => {
+          if (result.status === Office.AsyncResultStatus.Failed) {
+            return reject(result.error.message);
+          }
+          resolve(result.value);
+        });
+    });
   }
 
   removeBinding (binding) {

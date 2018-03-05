@@ -247,8 +247,16 @@ class App extends Component {
 
   async createBinding (selection) {
     try {
-      const namedItem = await this.office.createSelectionRange(selection.sheetId, selection.range)
-      const binding = await this.office.createBinding(selection.name, namedItem);
+      let binding;
+      if (this.state.excelApiSupported) {
+        const namedItem = await this.office.createSelectionRange(selection.sheetId, selection.range)
+        binding = await this.office.createBinding(selection.name, namedItem);
+      } else {
+        // Creation of a named item requires ExcelApi1.4
+        // Create selection binding if the Excel API is not supported
+        binding = await this.office.createSelectionBinding(selection.name);
+      }
+
       if (binding.columnCount > MAX_COLUMNS) {
         await this.office.removeBinding(binding);
         throw new Error(MAX_COLUMNS_ERROR);
